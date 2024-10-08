@@ -1,0 +1,5 @@
+accelerate==0.29.3
+transformers==4.40.1
+psycopg2-binary==2.9.9
+django-jazzmin==2.6.2
+django==3.2

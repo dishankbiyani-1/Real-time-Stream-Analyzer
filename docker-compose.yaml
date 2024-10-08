@@ -1,0 +1,53 @@
+version: '3'
+services:
+  db:
+    build:
+      context: ./postgres
+    environment:
+      - POSTGRES_DB=dejavu
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    networks:
+      - mynetwork
+  dejavu:
+    build: 
+      context: dejavu_service
+    command: >
+      sh -c "cd /code && flask run --host=0.0.0.0 --port=5000 --debug"
+    depends_on:
+      - db
+    volumes:
+      - ./dejavu_service:/code
+      - ./amt_extractor/media/songs:/code/media/songs
+    networks:
+      - mynetwork
+    ports:
+      - "5000:5000"
+  django:
+    build:
+      context: amt_extractor
+    command: python manage.py runserver 0.0.0.0:8000
+    depends_on:
+      - db
+    volumes:
+      - ./amt_extractor:/code
+      - ./amt_extractor/media/songs:/code/media/songs
+    networks:
+      - mynetwork
+    ports:
+      - "8000:8000"
+  
+  djangomigrate:
+    build:
+      context: amt_extractor
+    command: python manage.py migrate
+    depends_on:
+      - db
+    volumes:
+      - ./amt_extractor:/code
+      - ./amt_extractor/media/songs:/code/media/songs
+    networks:
+      - mynetwork
+
+networks:
+  mynetwork:
